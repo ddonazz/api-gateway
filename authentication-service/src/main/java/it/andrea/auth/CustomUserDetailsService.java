@@ -11,27 +11,31 @@ import reactor.core.publisher.Mono;
 @Service
 public class CustomUserDetailsService implements ReactiveUserDetailsService {
 
-	private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-	public CustomUserDetailsService(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
+    public CustomUserDetailsService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
-	@Override
-	public Mono<UserDetails> findByUsername(String username) {
-		if ("user".equals(username)) {
-			return Mono.just(User.withUsername("user") //
-					.password(passwordEncoder.encode("password")) //
-					.roles("USER") //
+    @Override
+    public Mono<UserDetails> findByUsername(String username) {
+        if ("user".equals(username)) {
+            // @formatter:off
+			return Mono.just(User.withUsername("user") 
+					.password(passwordEncoder.encode("password")) 
+					.roles("USER") 
 					.build());
-		}
-		if ("admin".equals(username)) {
-			return Mono.just(User.withUsername("admin") //
-					.password(passwordEncoder.encode("admin")) //
-					.roles("ADMIN", "USER") //
+			// @formatter:on
+        }
+        if ("admin".equals(username)) {
+            // @formatter:off
+			return Mono.just(User.withUsername("admin") 
+					.password(passwordEncoder.encode("admin")) 
+					.roles("ADMIN", "USER") 
 					.build());
-		}
-		return Mono.empty();
-	}
+			// @formatter:on
+        }
+        return Mono.empty();
+    }
 
 }

@@ -19,48 +19,51 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthorizationHeaderFilter implements GatewayFilter {
 
-	private final ValidateJwtUtil jwtUtil;
-	private final RouterValidator routerValidator;
+    private final ValidateJwtUtil jwtUtil;
+    private final RouterValidator routerValidator;
 
-	@Override
-	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-		ServerHttpRequest request = exchange.getRequest();
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
 
-		if (routerValidator.isSecured.test(request)) {
-			if (!request.getHeaders().containsKey("Authorization")) {
-				ServerHttpResponse response = exchange.getResponse();
-				response.setStatusCode(HttpStatus.UNAUTHORIZED);
-				return response.setComplete();
-			}
+        if (routerValidator.isSecured.test(request)) {
+            if (!request.getHeaders().containsKey("Authorization")) {
+                ServerHttpResponse response = exchange.getResponse();
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                return response.setComplete();
+            }
 
-			String authHeader = request.getHeaders().getOrEmpty("Authorization").get(0);
-			String token = authHeader.replace("Bearer ", "");
+            String authHeader = request.getHeaders().getOrEmpty("Authorization").get(0);
+            String token = authHeader.replace("Bearer ", "");
 
-			try {
-				jwtUtil.validateToken(token);
-				Claims claims = jwtUtil.extractAllClaims(token);
+            try {
+                jwtUtil.validateToken(token);
+                Claims claims = jwtUtil.extractAllClaims(token);
 
-				List<?> rawAuthorities = claims.get("authorities", List.class);
-				if (rawAuthorities != null) {
-					List<String> authorities = rawAuthorities.stream() //
-							.map(Object::toString) //
-							.toList();
+                List<?> rawAuthorities = claims.get("authorities", List.class);
+                if (rawAuthorities != null) {
+                    // @formatter:off
+                    List<String> authorities = rawAuthorities.stream() 
+                            .map(Object::toString) 
+                            .toList();
+                    // @formatter:on
 
-					ServerHttpRequest modifiedRequest = request.mutate() //
-							.header("X-Auth-User", claims.getSubject()) //
-							.header("X-Auth-Roles", String.join(",", authorities)) //
-							.build();
+                    // @formatter:off
+                    ServerHttpRequest modifiedRequest = request.mutate() 
+                            .header("X-Auth-User", claims.getSubject()) 
+                            .header("X-Auth-Roles", String.join(",", authorities)) 
+                            .build();
+                    // @formatter:on
 
-					return chain.filter(exchange.mutate().request(modifiedRequest).build());
-
-				} 
-			} catch (Exception e) {
-				ServerHttpResponse response = exchange.getResponse();
-				response.setStatusCode(HttpStatus.UNAUTHORIZED);
-				return response.setComplete();
-			}
-		}
-		return chain.filter(exchange);
-	}
+                    return chain.filter(exchange.mutate().request(modifiedRequest).build());
+                }
+            } catch (Exception e) {
+                ServerHttpResponse response = exchange.getResponse();
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                return response.setComplete();
+            }
+        }
+        return chain.filter(exchange);
+    }
 
 }

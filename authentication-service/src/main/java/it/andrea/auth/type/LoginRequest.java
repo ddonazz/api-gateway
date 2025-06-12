@@ -1,4 +1,4 @@
-package it.andrea.auth;
+package it.andrea.auth.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequest {
-	private String username;
-	private String password;
+    private String username;
+    private String password;
 }

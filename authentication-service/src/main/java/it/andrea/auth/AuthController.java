@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.andrea.auth.type.AuthResponse;
+import it.andrea.auth.type.LoginRequest;
 import it.andrea.auth.util.CreateJwtUtil;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -18,20 +20,22 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthController {
 
-	private final ReactiveAuthenticationManager authenticationManager;
-	private final CreateJwtUtil jwtUtil;
-	private final CustomUserDetailsService userDetailsService;
+    private final ReactiveAuthenticationManager authenticationManager;
+    private final CreateJwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
-	@PostMapping("/login")
-	public Mono<ResponseEntity<AuthResponse>> login(@RequestBody LoginRequest loginRequest) {
+    @PostMapping("/login")
+    public Mono<ResponseEntity<AuthResponse>> login(@RequestBody LoginRequest loginRequest) {
+        // @formatter:off
 		return authenticationManager 
-				.authenticate(
-						new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())) //
-				.flatMap(authentication -> userDetailsService.findByUsername(authentication.getName())) //
+				.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())) 
+				.flatMap(authentication -> userDetailsService.findByUsername(authentication.getName())) 
 				.map(userDetails -> {
 					String token = jwtUtil.generateToken(userDetails);
 					return ResponseEntity.ok(new AuthResponse(token));
-				}).switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
-	}
+				})
+				.switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
+		// @formatter:on
+    }
 
 }

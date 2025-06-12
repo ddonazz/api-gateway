@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class RouterValidator {
 
-	@Value("${gateway.public-paths}")
-	private List<String> publicPaths;
+    @Value("${gateway.public-paths}")
+    private List<String> publicPaths;
 
-	public final Predicate<ServerHttpRequest> isSecured = request -> publicPaths //
-			.stream() //
-			.noneMatch(uri -> request.getURI().getPath().contains(uri));
-
+    // @formatter:off
+    public final Predicate<ServerHttpRequest> isSecured = request -> publicPaths .stream() 
+            .noneMatch(uri -> request.getURI().getPath().contains(uri));
+    // @formatter:on
 }

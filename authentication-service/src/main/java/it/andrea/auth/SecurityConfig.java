@@ -16,31 +16,31 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	ReactiveAuthenticationManager authenticationManager(CustomUserDetailsService userDetailsService,
-			PasswordEncoder passwordEncoder) {
-		UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
-				userDetailsService);
-		authenticationManager.setPasswordEncoder(passwordEncoder);
-		return authenticationManager;
-	}
+    @Bean
+    ReactiveAuthenticationManager authenticationManager(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
+        authenticationManager.setPasswordEncoder(passwordEncoder);
+        return authenticationManager;
+    }
 
-	@Bean
-	SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-		return http //
-				.csrf(ServerHttpSecurity.CsrfSpec::disable) //
-				.authorizeExchange(exchanges -> exchanges //
-						.pathMatchers("/auth/login").permitAll() //
-						.anyExchange().authenticated() //
-				) //
-				.httpBasic(HttpBasicSpec::disable) //
-				.formLogin(FormLoginSpec::disable) //
+    @Bean
+    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        // @formatter:off
+		return http 
+				.csrf(ServerHttpSecurity.CsrfSpec::disable) 
+				.authorizeExchange(exchanges -> exchanges 
+						.pathMatchers("/auth/login").permitAll() 
+						.anyExchange().authenticated() 
+				) 
+				.httpBasic(HttpBasicSpec::disable) 
+				.formLogin(FormLoginSpec::disable) 
 				.build();
-	}
+		// @formatter:on
+    }
 
 }

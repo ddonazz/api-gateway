@@ -1,4 +1,4 @@
-package it.andrea.auth;
+package it.andrea.auth.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthResponse {
-	private String token;
+    private String token;
 }

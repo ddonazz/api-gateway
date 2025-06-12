@@ -15,31 +15,36 @@ import it.andrea.apigateway.filter.AuthorizationHeaderFilter;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
-	private final AuthorizationHeaderFilter authorizationHeaderFilter;
+    private final AuthorizationHeaderFilter authorizationHeaderFilter;
 
-	public SecurityConfig(AuthorizationHeaderFilter authorizationHeaderFilter) {
-		this.authorizationHeaderFilter = authorizationHeaderFilter;
-	}
+    public SecurityConfig(AuthorizationHeaderFilter authorizationHeaderFilter) {
+        this.authorizationHeaderFilter = authorizationHeaderFilter;
+    }
 
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-		return http.csrf(ServerHttpSecurity.CsrfSpec::disable) //
-				.authorizeExchange(exchanges -> exchanges.anyExchange().permitAll() //
-				) //
-				.httpBasic(HttpBasicSpec::disable) //
-				.formLogin(FormLoginSpec::disable) //
-				.build();
-	}
+        // @formatter:off
+        return http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable) 
+                .authorizeExchange(exchanges -> exchanges.anyExchange().permitAll()) 
+                .httpBasic(HttpBasicSpec::disable) 
+                .formLogin(FormLoginSpec::disable) 
+                .build();
+        // @formatter:on
+    }
 
-	@Bean
-	RouteLocator routes(RouteLocatorBuilder builder) {
-		return builder.routes() //
-				.route("authentication-service", r -> r.path("/auth/**") //
-						.uri("lb://AUTHENTICATION-SERVICE")) //
-				.route("my-backend-service", r -> r.path("/backend/**") //
-						.filters(f -> f.filter(authorizationHeaderFilter) //
-								.stripPrefix(1)) //
-						.uri("lb://MY-BACKEND-SERVICE")) //
-				.build();
-	}
+    @Bean
+    RouteLocator routes(RouteLocatorBuilder builder) {
+        // @formatter:off
+        return builder.routes() 
+                .route("authentication-service", r -> r
+                        .path("/auth/**") 
+                        .uri("lb://AUTHENTICATION-SERVICE")) 
+                .route("my-backend-service", r -> r
+                        .path("/backend/**") 
+                        .filters(f -> f.filter(authorizationHeaderFilter) .stripPrefix(1)) 
+                        .uri("lb://MY-BACKEND-SERVICE")) 
+                .build();
+        // @formatter:on
+    }
 }
