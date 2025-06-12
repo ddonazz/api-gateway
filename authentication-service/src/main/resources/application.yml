@@ -1,0 +1,13 @@
+server:
+  port: 8082 
+spring:
+  application:
+    name: AUTHENTICATION-SERVICE
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    enabled: true
+jwt:
+  secret: yourVerySecretKeyThatIsAtLeast32BytesLongAndShouldBeSecurelyManaged 
+  expiration: 3600000 

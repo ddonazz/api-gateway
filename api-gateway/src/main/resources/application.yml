@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+           routes:
+             - id: authentication_service
+               uri: lb://AUTHENTICATION-SERVICE
+               predicates:
+                 - Path=/auth/**
+             - id: my_backend_service_route
+               uri: lb://MY-BACKEND-SERVICE
+               predicates:
+                 - Path=/backend/**
+               filters:
+                 - StripPrefix=1
+
+jwt:
+  secret: yourVerySecretKeyThatIsAtLeast32BytesLongAndShouldBeSecurelyManaged
+  expiration: 3600000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    enabled: true
+
+gateway:
+  public-paths: /auth/**
