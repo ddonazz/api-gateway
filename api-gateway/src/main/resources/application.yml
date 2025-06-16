@@ -13,12 +13,33 @@ spring:
                uri: lb://AUTHENTICATION-SERVICE
                predicates:
                  - Path=/auth/**
-             - id: my_backend_service_route
-               uri: lb://MY-BACKEND-SERVICE
-               predicates:
-                 - Path=/backend/**
                filters:
-                 - StripPrefix=1
+                 - name: RequestRateLimiter
+                   args:
+                     key-resolver: '#{@ipKeyResolver}' 
+                     redis-rate-limiter.replenishRate: 5 
+                     redis-rate-limiter.burstCapacity: 10 
+                     redis-rate-limiter.requestedTokens: 1 
+             - id: user_service_route
+               uri: lb://USER-SERVICE 
+               predicates:
+                 - Path=/api/users/**
+                 - Method=GET,POST
+               filters:
+                 - StripPrefix=1 
+                 - AuthorizationHeader
+             - id: product_service_route
+               uri: lb://PRODUCT-SERVICE 
+               predicates:
+                 - Path=/api/products/**
+                 - Header=X-Version, v2 
+               filters:
+                 - AddRequestHeader=X-Forwarded-By, ApiGateway
+                 - AuthorizationHeader
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 jwt:
   secret: yourVerySecretKeyThatIsAtLeast32BytesLongAndShouldBeSecurelyManaged
