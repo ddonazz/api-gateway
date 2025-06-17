@@ -16,8 +16,7 @@ public class HeaderAuthenticationConverter implements ServerAuthenticationConver
 	
 	private static final String USER_HEADER = "X-Auth-User";
     private static final String ROLES_HEADER = "X-Auth-Roles";
-    private static final String ROLE_PREFIX = "ROLE_";
-
+    
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         HttpHeaders headers = exchange.getRequest().getHeaders();
@@ -32,7 +31,7 @@ public class HeaderAuthenticationConverter implements ServerAuthenticationConver
         List<SimpleGrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
                 .map(String::trim)
                 .filter(role -> !role.isEmpty())
-                .map(role -> new SimpleGrantedAuthority(ROLE_PREFIX + role))
+                .map(SimpleGrantedAuthority::new)
                 .toList();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);

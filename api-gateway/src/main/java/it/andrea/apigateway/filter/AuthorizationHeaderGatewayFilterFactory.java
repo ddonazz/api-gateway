@@ -2,6 +2,8 @@ package it.andrea.apigateway.filter;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +17,8 @@ import it.andrea.apigateway.util.ValidateJwtUtil;
 
 @Component
 public class AuthorizationHeaderGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthorizationHeaderGatewayFilterFactory.Config> {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(AuthorizationHeaderGatewayFilterFactory.class);
 	
     private final ValidateJwtUtil jwtUtil;
     private final RouterValidator routerValidator;
@@ -62,13 +66,13 @@ public class AuthorizationHeaderGatewayFilterFactory extends AbstractGatewayFilt
                                 .header("X-Auth-Roles", String.join(",", authorities))
                                 .build();
 
-                        System.out.println("AuthorizationHeaderFilter applied. User: " + claims.getSubject());
+                        LOG.info("AuthorizationHeaderFilter applied. User: {}", claims.getSubject());
                         return chain.filter(exchange.mutate().request(modifiedRequest).build());
                     }
                 } catch (Exception e) {
                     ServerHttpResponse response = exchange.getResponse();
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    System.out.println("Invalid Authorization header: " + e.getMessage());
+                    LOG.warn("Invalid Authorization header: {}", e.getMessage());
                     return response.setComplete();
                 }
             }
