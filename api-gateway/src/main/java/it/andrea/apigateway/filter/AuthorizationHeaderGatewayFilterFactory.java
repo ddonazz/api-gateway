@@ -44,7 +44,7 @@ public class AuthorizationHeaderGatewayFilterFactory extends AbstractGatewayFilt
                 if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                     ServerHttpResponse response = exchange.getResponse();
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    System.out.println("Missing Authorization header for secured route.");
+                    LOG.warn("Missing Authorization header for secured route.");
                     return response.setComplete();
                 }
 
